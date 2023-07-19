@@ -1,0 +1,31 @@
+{
+	"name": "owl-bot",
+	"version": "0.0.1",
+	"description": "Discord bot for TSP's Office of WA Legislation",
+	"author": "anjo/Tepertopia (https://www.nationstates.net/tepertopia)",
+	"license": "EUPL-1.2",
+	"repository": "github:anjo0803/owl",
+	"bugs": "https://github.com/anjo0803/owl/issues",
+	"keywords": [
+		"NationStates",
+		"WA",
+		"World Assembly",
+		"Discord",
+		"bot"
+	],
+	"main": "src/index.js",
+	"files": [
+		"src",
+		"LICENCE.txt",
+		"package.json",
+		"README.md"
+	],
+	"dependencies": {
+		"discord.js": "^14.11.0",
+		"dotenv": "^16.3.1",
+		"nationscript": "^1.0.3"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	}
+}
