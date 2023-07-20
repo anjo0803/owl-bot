@@ -16,6 +16,7 @@ const {
 	Routes
 } = require('discord.js');
 
+const loadfiles = require('../file-loader');
 const msg = require('../msg');
 const $ = require('../settings.json');
 
@@ -39,7 +40,7 @@ exports.getCommand = (name) => COMMANDS.get(name);
  * @arg {Client} client The discord.js `Client` of the bot.
  */
 exports.registerSlashCommands = async () => {
-	let commands = loadCommands();
+	let commands = loadfiles('commands', BotCommand);
 
 	// Get the JSON data of all commands for registration with Discord, and map them to their name
 	// for later Interactions concurrently
@@ -49,7 +50,7 @@ exports.registerSlashCommands = async () => {
 		COMMANDS.set(command.data.name, command.execute);
 	}
 
-	msg.printInfo('Slash Commands are being registered...');
+	msg.printInfo('Updating BotCommands as with Discord as Slash Commands');
 
 	let r = new REST();
 	let promise;
@@ -64,32 +65,10 @@ exports.registerSlashCommands = async () => {
 		{ body: json }
 	)
 
-	promise.then(() => msg.printInfo('Slash Commands successfully registered!'), (e) => {
-		msg.printError(`Failed to register Slash Commands: ${e}`);
+	promise.then(() => msg.printInfo('Slash Commands successfully updated!'), (e) => {
+		msg.printError(`Failed to update Slash Commands: ${e}`);
 		console.error(e);
 	});
-}
-
-/**
- * Loads all `BotCommand`s declared by files in the `commands` folder.
- * @return {BotCommand[]} A list of all commands that were found.
- */
-function loadCommands() {
-	msg.printDebug('Loading Slash Command source files...')
-	let ret = [];
-
-	// Loop over all files in the commands folder with a .js file extension
-	let commandsPath = path.join(__dirname, 'commands');
-	let commandFilePaths = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
-	for(let file of commandFilePaths) {
-
-		// If the file in question exports a command, add it to the returns list
-		let command = require(file);
-		if(command instanceof BotCommand) ret.push(command);
-	}
-
-	msg.printDebug(`Slash Command source files (${ret.length}) successfully loaded!`);
-	return ret;
 }
 
 /**
@@ -132,3 +111,4 @@ class BotCommand {
 		return false;
 	}
 }
+exports.BotCommand = BotCommand;
