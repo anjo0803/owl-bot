@@ -7,12 +7,12 @@ const {
 	Events
 } = require('discord.js');
 
-const { BotEvent } = require('./event');
+const { BotEvent } = require('../event');
 const msg = require('../msg');
 
 /**
  * Prints a message to the console to announce that the login has completed successfully.
- * @param {Client} client - The logged-in client instance for the bot.
+ * @arg {Client} client - The logged-in client instance for the bot.
  */
 function readyMessage(client) {
 	msg.printInfo(`Successfully logged in as ${client.user.tag}!`);

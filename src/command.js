@@ -3,9 +3,6 @@
  * @module commands/command
  */
 
-const fs = require('node:fs');
-const path = require('node:path');
-
 const {
 	Client,
 	Collection,
@@ -16,22 +13,38 @@ const {
 	Routes
 } = require('discord.js');
 
-const loadfiles = require('../file-loader');
-const msg = require('../msg');
-const $ = require('../settings.json');
+const loadfiles = require('./loadfiles');
+const msg = require('./msg');
+const $ = require('./settings.json');
+
+/**
+ * Runs the appropriate command executor function for the given Slash Command interaction.
+ * @param {CommandInteraction} i - The interaction where a user tries to run a Slash Command.
+ */
+exports.handle = (i) => {
+
+	// Try to get the command executor function and run it if it exists
+	let execute = COMMANDS.get(i.commandName);
+	if(typeof execute !== 'function') {
+		i.reply({
+			content: 'Sorry, there was an internal error.',
+			ephemeral: true
+		});
+		msg.printWarn(`User ${i.user.tag} ran unhandled command ${i.commandName}!`);
+	} else execute(i).then(
+		() => msg.printDebug(`Command ${i.commandName} executed for ${i.user.tag}`),
+		(e) => {
+			msg.printError(`Could not execute command ${i.commandName} for ${i.user.tag}: ${e}`);
+			console.error(e);
+		}
+	);
+}
 
 /**
  * Names and executor functions of all Slash Commands registered for the bot as key-value pairs.
  * @type Collection<string, CommandExecutor>
  */
 const COMMANDS = new Collection();
-
-/**
- * Gets the executor function of registered `BotCommand` by the given name.
- * @arg {string} name Name of the `BotCommand` whose executor function is desired.
- * @return {CommandExecutor | undefined} The execution function of the matching `BotCommand`.
- */
-exports.getCommand = (name) => COMMANDS.get(name);
 
 /**
  * Checks all JavaScript files in the commands folder for whether they export a
@@ -72,9 +85,20 @@ exports.registerSlashCommands = async () => {
 }
 
 /**
+ * @enum
+ */
+const COMMAND_PERMS = Object.freeze({
+	OWNER: 1,
+	AUTHORIZE: 2,
+	VOTES: 4,
+	RECOS: 8
+});
+
+/**
  * 
  * @callback CommandExecutor
  * @arg {CommandInteraction} interaction - The Discord Interaction triggering command execution.
+ * @return {Promise<void>}
  */
 
 /**
@@ -99,16 +123,10 @@ class BotCommand {
 
 	/**
 	 * The function that is executed when the command is called by a user.
-	 * @arg {CommandInteraction} i The `Interaction` where the user calls the command.
-	 * @return {boolean} `true` if executed successfully, `false` if there was an error.
 	 * @virtual
 	 */
-	async execute(i) {
-		await i.reply({
-			ephemeral: true,
-			content: 'Error: This command has not been properly implemented yet. :('
-		});
-		return false;
+	async execute() {
+		throw new Error('Command has no handler attached!');
 	}
 }
 exports.BotCommand = BotCommand;

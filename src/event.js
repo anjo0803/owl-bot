@@ -3,12 +3,9 @@
  * @module events/event
  */
 
-const {
-	Client,
-	Events
-} = require('discord.js');
+const { Client } = require('discord.js');
 
-const loadfiles = require('../file-loader');
+const loadfiles = require('./loadfiles');
 
 /**
  * Configures the given client instance to listen to the events specified in the source files in
@@ -37,6 +34,13 @@ class BotEvent {
 		this.name = name;
 		this.handle = handle;
 		this.once = once;
+	}
+
+	/**
+	 * @virtual
+	 */
+	async handle() {
+		throw new Error('Event has no handler attached!')
 	}
 }
 exports.BotEvent = BotEvent;
